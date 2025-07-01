@@ -1,0 +1,8 @@
+1. Register you model first.
+    Go to the admin.py in your app.
+    import your model example (import .models import TodoItem).
+    Then register your model ( admin.site.register(TodoItem) ).
+
+2. Commands to Register/Migrations (terminal)
+    - python manage.py makemigrations 
+    - python manage.py migrate
