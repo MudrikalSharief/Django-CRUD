@@ -1,0 +1,12 @@
+Install (terminal)
+1. pip install django
+
+Create Project(terminal)
+2. django-admin startproject CRUD
+
+Create App(terminal)
+1. cd CRUD (go to the directory)
+2. python manage.py startapp MyCrud
+
+Connect the app to the project
+1. go to CRUD folder -> settings.py -> then find the installed apps array -> put the name of the app (MyCrud)
