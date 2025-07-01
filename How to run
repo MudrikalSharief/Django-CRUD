@@ -10,3 +10,6 @@ Create App(terminal)
 
 Connect the app to the project
 1. go to CRUD folder -> settings.py -> then find the installed apps array -> put the name of the app (MyCrud)
+
+Run The server(Terminal)
+1. python manage.py runserver
