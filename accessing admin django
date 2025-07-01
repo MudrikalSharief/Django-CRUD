@@ -1,0 +1,4 @@
+Create a super user
+
+(terminal)
+python manage.py createsuperuser
