@@ -1,12 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Create a New Todo List</h1>
 
-<form method="POST" action = "">
+<div id="toast"></div>
+
+<h1>Add new student </h1>
+
+<form id="addStudentForm" method="POST" action="" class="styled-form">
     {% csrf_token %}
-    {{form.as_p}}
-    <button type="submit">Add List</button>
+    {{ form.as_p }}
+    <button type="submit" class="submit-btn">Add Student</button>
 </form>
 
+
+
+<script>
+document.getElementById('addStudentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch("{% url 'addstudent' %}", {
+        method: "POST",
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message);
+            this.reset();
+        } else if (data.errors) {
+            let errorMsg = "";
+            for (const [field, messages] of Object.entries(data.errors)) {
+                errorMsg += `${field}: ${messages.join(", ")}\n`;
+            }
+            showToast(errorMsg, true);
+        }
+    });
+});
+
+function showToast(message, error = false) {
+    const toast = document.getElementById("toast");
+    if (error == false){
+        toast.style.backgroundColor = "#4BB543";
+    }
+    else{
+        toast.style.backgroundColor = "#b54343";
+    }
+    toast.textContent = message;
+    toast.style.visibility = "visible";
+    toast.style.opacity = "1";
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.visibility = "hidden";
+    }, 2000);
+}
+</script>
 {% endblock %}

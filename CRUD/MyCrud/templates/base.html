@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,23 +8,24 @@
       {% block title %}
         Django App
       {% endblock %}
-    </title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"  rel="stylesheet" />
+    </title>  
+    <link rel="stylesheet" href="{% static '/css/style.css' %}">
+    
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">My Django App</a>
+    <nav class="navbar">
+      <a class="navbar-brand" href="#">Student Alumni Data</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item active">
+          <li class="nav-item {% if request.path == '/' %}active{% endif %}">
             <a class="nav-link" href="/">Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/todo/">Todo List</a>
+          <li class="nav-item {% if request.path == '/students/' %}active{% endif %}">
+            <a class="nav-link" href="/students/">students</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/create/">Add Todo</a>
+          <li class="nav-item {% if request.path == '/students/add/' %}active{% endif %}">
+            <a class="nav-link" href="/students/add/">Add Students</a>
           </li>
         </ul>
       </div>
@@ -32,6 +34,16 @@
     <div class="container">{% block content %} {% endblock %}</div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" ></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const toggler = document.querySelector('.navbar-toggler');
+        const menu = document.getElementById('navbarNav');
+
+        toggler.addEventListener('click', function () {
+          menu.classList.toggle('show');
+        });
+      });
+    </script>
+
   </body>
 </html>
