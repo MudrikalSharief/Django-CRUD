@@ -568,15 +568,21 @@
         const endDateInput = document.querySelector('input[name="end_employment_date"]');
 
         if (startDateInput && endDateInput) {
+            endDateInput.disabled = true; // Disable end date input when start date is selected 
             startDateInput.addEventListener('change', function() {
                 endDateInput.min = this.value;
+                endDateInput.disabled = false; // Enable end date input when start date is selected 
                 // Optionally clear end date if it's before the new start date
                 if (endDateInput.value && endDateInput.value < this.value) {
                     endDateInput.value = '';
                 }
+                if(!startDateInput.value) {
+                    endDateInput.disabled = true; // Disable end date input if start date is not selected
+                }
             });
         }
-    
+        
+        
         const form = document.getElementById('addStudentForm');
         const submitBtn = document.getElementById('submitBtn');
         const progressBar = document.getElementById('progressBar');

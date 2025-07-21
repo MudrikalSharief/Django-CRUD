@@ -711,10 +711,10 @@
 
         // Simulate statistics (replace with real data from your backend)
         const stats = {
-            totalStudents: 150,
-            employedStudents: 128,
-            linkedinProfiles: 95,
-            recentGrads: 42
+            totalStudents: {{ total_students|default:0 }},
+            employedStudents: {{ total_employed|default:0 }},
+            linkedinProfiles: {{ total_linkedIn|default:0 }},
+            recentGrads: {{ total_graduated|default:0 }}
         };
 
         // Animate counters when stats section is visible
@@ -814,31 +814,7 @@
         });
     });
 
-    // Utility function to fetch real statistics (replace with your API endpoint)
-    async function fetchRealStats() {
-        try {
-            // Replace with your actual API endpoint
-            // const response = await fetch('/api/stats/');
-            // const data = await response.json();
-            // return data;
-            
-            // For now, return mock data
-            return {
-                totalStudents: 150,
-                employedStudents: 128,
-                linkedinProfiles: 95,
-                recentGrads: 42
-            };
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-            return {
-                totalStudents: 0,
-                employedStudents: 0,
-                linkedinProfiles: 0,
-                recentGrads: 0
-            };
-        }
-    }
+   
 </script>
 
 {% endblock %}

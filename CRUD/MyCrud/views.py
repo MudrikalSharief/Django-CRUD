@@ -7,12 +7,24 @@ from . forms import AddStudentList #import the AddStudentList form from forms.py
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
-
+import datetime
 
 @csrf_exempt
 # Create your views here.
 def index(request):
-    return render(request, "home.html")
+    students = student.objects.all() # Get all students from the database
+    total_students = students.count()  # Count total number of students
+    total_employed = students.exclude(job_title="").count()  # Count total employed students
+    total_linkedIn = students.exclude(linkedin_profile="").count()  # Count total students with LinkedIn profiles
+    total_graduated = students.filter(year_graduated=datetime.date.today().year - 1).count()  # Count total students who graduated last year
+
+    context = {
+        "total_students": total_students,
+        "total_employed": total_employed,   
+        "total_linkedIn": total_linkedIn,
+        "total_graduated": total_graduated,
+    }
+    return render(request, "home.html", context)
 
 
 def showstudents(request):

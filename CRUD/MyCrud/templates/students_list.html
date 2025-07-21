@@ -1326,6 +1326,24 @@
             }, 1000);
         }
     });
+
+    const startDateInput = document.querySelector('input[name="start_employment_date"]');
+    const endDateInput = document.querySelector('input[name="end_employment_date"]');
+
+        if (startDateInput && endDateInput) {
+            endDateInput.disabled = true; // Disable end date input when start date is selected 
+            startDateInput.addEventListener('change', function() {
+                endDateInput.min = this.value;
+                endDateInput.disabled = false; // Enable end date input when start date is selected 
+                // Optionally clear end date if it's before the new start date
+                if (endDateInput.value && endDateInput.value < this.value) {
+                    endDateInput.value = '';
+                }
+                if(!startDateInput.value) {
+                    endDateInput.disabled = true; // Disable end date input if start date is not selected
+                }
+            });
+        }
 </script>
 
 {% endblock %}
