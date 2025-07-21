@@ -1,61 +1,840 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block title %}
+    Add New Student - Student Alumni Management
+{% endblock %}
 
+{% block content %}
+<style>
+
+    
+    /* Add Student Form Styles */
+    
+    /* Toast Notification */
+
+
+
+    #toast {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius);
+        color: var(--white);
+        font-weight: 500;
+        text-align: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+    }
+
+    #toast.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+
+    #toast.success {
+        background: linear-gradient(135deg, var(--success-color), #059669);
+    }
+
+    #toast.error {
+        background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    }
+
+    /* Page Header */
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem 0;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.125rem;
+        color: var(--gray-600);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: var(--white);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .form-header h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .form-body {
+        padding: 2.5rem;
+    }
+
+    /* Form Styling */
+    .styled-form {
+        display: grid;
+        gap: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .form-grid.single-column {
+        grid-template-columns: 1fr;
+    }
+
+    /* Django Form Field Styling */
+    .styled-form p {
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .styled-form label {
+        font-weight: 600;
+        color: var(--gray-700);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .styled-form label::after {
+        content: '*';
+        color: var(--danger-color);
+        margin-left: 0.25rem;
+    }
+
+    .styled-form label[for$="_profile"]::after,
+    .styled-form label[for$="_title"]::after,
+    .styled-form label[for$="_company"]::after,
+    .styled-form label[for$="_date"]::after {
+        content: '';
+    }
+
+    .styled-form input[type="text"],
+    .styled-form input[type="email"],
+    .styled-form input[type="url"],
+    .styled-form input[type="number"],
+    .styled-form input[type="date"],
+    .styled-form select,
+    .styled-form textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: var(--transition);
+        background: var(--white);
+        font-family: inherit;
+        color: var(--gray-900);
+    }
+
+    .styled-form input:focus,
+    .styled-form select:focus,
+    .styled-form textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .styled-form input:invalid {
+        border-color: var(--danger-color);
+    }
+
+    .styled-form input:valid {
+        border-color: var(--success-color);
+    }
+
+    /* Placeholder styling */
+    .styled-form input::placeholder,
+    .styled-form textarea::placeholder {
+        color: var(--gray-400);
+        font-style: italic;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        
+        min-width: 200px;
+        box-shadow: var(--shadow);
+    }
+
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        background: linear-gradient(135deg, var(--primary-dark), #1e40af);
+    }
+
+    .submit-btn:disabled {
+        background: var(--gray-400);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .submit-btn.loading {
+        position: relative;
+        color: transparent;
+    }
+
+    .submit-btn.loading::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 50%;
+        margin-left: -10px;
+        margin-top: -10px;
+        border: 2px solid transparent;
+        border-top-color: var(--white);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .btn-secondary {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 2px solid var(--gray-300);
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        text-decoration: none;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray-200);
+        border-color: var(--gray-400);
+        text-decoration: none;
+        color: var(--gray-700);
+        transform: translateY(-1px);
+    }
+
+    /* Field Icons */
+    .field-icon {
+        font-size: 0.875rem;
+        opacity: 0.7;
+    }
+
+    /* Help Text */
+    .help-text {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+        font-style: italic;
+    }
+
+    /* Error Styling */
+    .field-error {
+        color: var(--danger-color);
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .field-error::before {
+        content: '⚠️';
+        font-size: 0.75rem;
+    }
+
+    /* Success Animation */
+    .form-success {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: var(--success-color);
+        color: var(--white);
+        border-radius: var(--border-radius-lg);
+        margin: 2rem 0;
+        animation: slideInUp 0.5s ease;
+    }
+
+    .success-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .success-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .success-message {
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+
+    .success-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .success-btn {
+        background: var(--white);
+        color: var(--success-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .success-btn:hover {
+        background: var(--gray-100);
+        text-decoration: none;
+        color: var(--success-color);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-container {
+            margin: 0 1rem;
+        }
+
+        .form-body {
+            padding: 1.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .submit-btn {
+            width: 100%;
+        }
+
+        #toast {
+            right: 1rem;
+            left: 1rem;
+            min-width: auto;
+        }
+    }
+
+    /* Animations */
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.6s ease;
+    }
+
+    /* Form Progress Indicator */
+    .form-progress {
+        background: var(--gray-100);
+        height: 4px;
+        border-radius: 2px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .form-progress-bar {
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+        border-radius: 2px;
+    }
+</style>
+
+<!-- Toast Notification -->
 <div id="toast"></div>
 
-<h1>Add new student </h1>
+<!-- Page Header -->
+<div class="page-header fade-in">
+    <h1 class="page-title">
+        <span>👤</span>
+        Add New Student
+    </h1>
+    <p class="page-subtitle">
+        Register a new student in the alumni management system with their academic and professional information
+    </p>
+</div>
 
-<form id="addStudentForm" method="POST" action="" class="styled-form">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="submit-btn">Add Student</button>
-</form>
-
-
+<!-- Form Container -->
+<div class="form-container fade-in">
+    <div class="form-header">
+        <h2>Student Registration Form</h2>
+        <p>Please fill in all required information accurately</p>
+    </div>
+    
+    <div class="form-body">
+        <!-- Progress Bar -->
+        <div class="form-progress">
+            <div class="form-progress-bar" id="progressBar"></div>
+        </div>
+        
+        <form id="addStudentForm" method="POST" action="" class="styled-form">
+            {% csrf_token %}
+            
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="field-icon">👤</span>
+                    Personal Information
+                </h3>
+                <div class="form-grid">
+                    <p>Full Name:</p>
+                    {{ form.name }}
+                    <p>LinkedIn Profile:</p>
+                    {{ form.linkedin_profile }}
+                </div>
+            </div>
+            
+            <!-- Academic Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="field-icon">🎓</span>
+                    Academic Information
+                </h3>
+                <div class="form-grid">
+                    <p>Course:</p>
+                    {{ form.course }}
+                    <p>Year Graduated:</p>
+                    {{ form.year_graduated }}
+                </div>
+            </div>
+            
+            <!-- Professional Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="field-icon">💼</span>
+                    Professional Information
+                </h3>
+                <div class="form-grid">
+                    <p>Job Title:</p>
+                    {{ form.job_title }}
+                    <p>Company:</p>
+                    {{ form.company }}
+                </div>
+            </div>
+            
+            <!-- Employment Timeline Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="field-icon">📅</span>
+                    Employment Timeline
+                </h3>
+                <div class="form-grid">
+                    <p>Start Date:</p>
+                    {{ form.start_employment_date }}
+                    <p>End Date (Leave blank if still employed):</p>    
+                    {{ form.end_employment_date }}
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="/students/" class="btn-secondary">
+                    <span>←</span>
+                    Back to Students
+                </a>
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>➕</span>
+                    Add Student
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
-document.getElementById('addStudentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    fetch("{% url 'addstudent' %}", {
-        method: "POST",
-        headers: {
-            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast(data.message);
-            this.reset();
-        } else if (data.errors) {
-            let errorMsg = "";
-            for (const [field, messages] of Object.entries(data.errors)) {
-                errorMsg += `${field}: ${messages.join(", ")}\n`;
+    // Enhanced form handling with better UX
+    
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const startDateInput = document.querySelector('input[name="start_employment_date"]');
+        const endDateInput = document.querySelector('input[name="end_employment_date"]');
+
+        if (startDateInput && endDateInput) {
+            startDateInput.addEventListener('change', function() {
+                endDateInput.min = this.value;
+                // Optionally clear end date if it's before the new start date
+                if (endDateInput.value && endDateInput.value < this.value) {
+                    endDateInput.value = '';
+                }
+            });
+        }
+    
+        const form = document.getElementById('addStudentForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Form progress tracking
+        function updateProgress() {
+            const inputs = form.querySelectorAll('input[required], select[required]');
+            const filledInputs = Array.from(inputs).filter(input => input.value.trim() !== '');
+            const progress = (filledInputs.length / inputs.length) * 100;
+            progressBar.style.width = progress + '%';
+        }
+        
+        // Add event listeners to track progress
+        form.addEventListener('input', updateProgress);
+        form.addEventListener('change', updateProgress);
+        
+        // Initial progress update
+        updateProgress();
+        
+        // Enhanced toast function
+        function showToast(message, isError = false, duration = 4000) {
+            const toast = document.getElementById("toast");
+            
+            // Remove existing classes
+            toast.classList.remove('success', 'error', 'show');
+            
+            // Set message and style
+            toast.textContent = message;
+            toast.classList.add(isError ? 'error' : 'success');
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Hide toast
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+        
+        // Form validation
+        function validateForm() {
+            const requiredFields = form.querySelectorAll('input[required], select[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                const value = field.value.trim();
+                const fieldContainer = field.closest('p');
+                
+                // Remove existing error messages
+                //const existingError = fieldContainer.querySelector('.field-error');
+                //if (existingError) {
+                //    existingError.remove();
+                //}
+                
+                if (!value) {
+                    isValid = false;
+                    field.style.borderColor = 'var(--danger-color)';
+                    
+                    // Add error message
+                    //const errorDiv = document.createElement('div');
+                    //errorDiv.className = 'field-error';
+                    //errorDiv.textContent = 'This field is required';
+                    //fieldContainer.appendChild(errorDiv);
+                } else {
+                    field.style.borderColor = 'var(--success-color)';
+                }
+            });
+            
+            // Validate email format
+            const emailField = form.querySelector('input[type="email"]');
+            if (emailField && emailField.value) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailField.value)) {
+                    isValid = false;
+                    emailField.style.borderColor = 'var(--danger-color)';
+                    
+                    const fieldContainer = emailField.closest('p');
+                    const errorDiv = document.createElement('div');
+                    //errorDiv.className = 'field-error';
+                    //errorDiv.textContent = 'Please enter a valid email address';
+                    fieldContainer.appendChild(errorDiv);
+                }
             }
-            showToast(errorMsg, true);
+            
+            // Validate LinkedIn URL format
+            const linkedinField = form.querySelector('input[name="linkedin_profile"]');
+            if (linkedinField && linkedinField.value) {
+                const linkedinRegex = /^https?:\/\/(www\.)?linkedin\.com\/in\/[\w-]+\/?$/;
+                if (!linkedinRegex.test(linkedinField.value)) {
+                    const fieldContainer = linkedinField.closest('p');
+                    //const existingError = fieldContainer.querySelector('.field-error');
+                    //if (existingError) existingError.remove();
+                    
+                    //const errorDiv = document.createElement('div');
+                    //errorDiv.className = 'field-error';
+                    //errorDiv.textContent = 'Please enter a valid LinkedIn profile URL';
+                    //fieldContainer.appendChild(errorDiv);
+                    linkedinField.style.borderColor = 'var(--danger-color)';
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // Real-time validation
+        form.addEventListener('blur', function(e) {
+            if (e.target.matches('input, select')) {
+                validateForm();
+            }
+        }, true);
+        
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                showToast('Please fix the errors in the form before submitting.', true);
+                return;
+            }
+            
+            // Add loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Adding Student...';
+            
+            // Create FormData BEFORE disabling inputs
+            const formData = new FormData(this);
+            
+            // Now disable form inputs
+            const inputs = form.querySelectorAll('input, select, button');
+            inputs.forEach(input => input.disabled = true);
+            
+            try {
+                if (!formData.get('csrfmiddlewaretoken')) {
+                    const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                    if (csrfToken) {
+                        formData.append('csrfmiddlewaretoken', csrfToken.value);
+                    }
+                }
+                
+                const response = await fetch("{% url 'addstudent' %}", {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message
+                    showToast(data.message || 'Student added successfully!', false);
+                    
+                    // Reset form
+                    this.reset();
+                    updateProgress();
+                    
+                    // Show success animation
+                    showSuccessAnimation();
+                    
+                    // Clear any validation styles
+                    inputs.forEach(input => {
+                        if (input.style) {
+                            input.style.borderColor = '';
+                        }
+                    });
+                    
+                    // Remove error messages
+                    document.querySelectorAll('.field-error').forEach(error => error.remove());
+                    
+                } else if (data.errors) {
+                    let errorMsg = "Please fix the following errors:\n";
+                    for (const [field, messages] of Object.entries(data.errors)) {
+                        errorMsg += `• ${field}: ${messages.join(", ")}\n`;
+                    }
+                    showToast(errorMsg, true, 6000);
+                } else {
+                    showToast('An error occurred while adding the student. Please try again.', true);
+                }
+                
+            } catch (error) {
+                console.error('Form submission error:', error);
+                showToast('Network error. Please check your connection and try again.', true);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<span>➕</span> Add Student';
+                
+                // Re-enable form inputs
+                inputs.forEach(input => input.disabled = false);
+            }
+        });
+        
+        // Success animation
+        function showSuccessAnimation() {
+            const formBody = document.querySelector('.form-body');
+            const successHTML = `
+                <div class="form-success">
+                    <span class="success-icon">🎉</span>
+                    <h3 class="success-title">Student Added Successfully!</h3>
+                    <p class="success-message">The student has been registered in the system.</p>
+                    <div class="success-actions">
+                        <a href="/students/" class="success-btn">View All Students</a>
+                        <a href="#" class="success-btn" onclick="location.reload()">Add Another Student</a>
+                    </div>
+                </div>
+            `;
+            
+            // Temporarily show success message
+            const originalContent = formBody.innerHTML;
+            formBody.innerHTML = successHTML;
+            
+            // Restore form after 5 seconds
+            setTimeout(() => {
+                formBody.innerHTML = originalContent;
+                // Re-initialize event listeners
+                location.reload();
+            }, 5000);
+        }
+        
+        // Add helpful placeholders
+        const placeholders = {
+            'name': 'e.g., John Doe',
+            'email': 'e.g., john.doe@email.com',
+            'course': 'e.g., Computer Science',
+            'year_graduated': '2023',
+            'linkedin_profile': 'https://linkedin.com/in/johndoe',
+            'job_title': 'e.g., Software Engineer',
+            'company': 'e.g., Tech Company Inc.',
+        };
+        
+        Object.keys(placeholders).forEach(fieldName => {
+            const field = form.querySelector(`[name="${fieldName}"]`);
+            if (field && !field.placeholder) {
+                field.placeholder = placeholders[fieldName];
+            }
+        });
+        
+        
+        
+        // Auto-format LinkedIn URL
+        const linkedinField = form.querySelector('input[name="linkedin_profile"]');
+        if (linkedinField) {
+            linkedinField.addEventListener('blur', function() {
+                let value = this.value.trim();
+                if (value && !value.startsWith('http')) {
+                    if (value.includes('linkedin.com/in/')) {
+                        this.value = 'https://' + value;
+                    } else if (!value.includes('linkedin.com')) {
+                        this.value = 'https://linkedin.com/in/' + value;
+                    }
+                }
+            });
         }
     });
-});
-
-function showToast(message, error = false) {
-    const toast = document.getElementById("toast");
-    if (error == false){
-        toast.style.backgroundColor = "#4BB543";
-    }
-    else{
-        toast.style.backgroundColor = "#b54343";
-    }
-    toast.textContent = message;
-    toast.style.visibility = "visible";
-    toast.style.opacity = "1";
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
-    setTimeout(() => {
-        toast.style.opacity = "0";
-        toast.style.visibility = "hidden";
-    }, 2000);
-}
 </script>
+
 {% endblock %}

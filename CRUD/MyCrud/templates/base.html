@@ -1,49 +1,257 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
-      {% block title %}
-        Django App
-      {% endblock %}
-    </title>  
-    <link rel="stylesheet" href="{% static '/css/style.css' %}">
-    
-  </head>
-  <body>
+        {% block title %}
+            Student Alumni Management System
+        {% endblock %}
+    </title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+</head>
+
+<body>
     <nav class="navbar">
-      <a class="navbar-brand" href="#">Student Alumni Data</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item {% if request.path == '/' %}active{% endif %}">
-            <a class="nav-link" href="/">Home</a>
-          </li>
-          <li class="nav-item {% if request.path == '/students/' %}active{% endif %}">
-            <a class="nav-link" href="/students/">students</a>
-          </li>
-          <li class="nav-item {% if request.path == '/students/add/' %}active{% endif %}">
-            <a class="nav-link" href="/students/add/">Add Students</a>
-          </li>
-        </ul>
-      </div>
+        <div class="navbar-container">
+            <a class="navbar-brand" href="/">Student Alumni Data</a>
+            
+            <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item {% if request.path == '/' %}active{% endif %}">
+                        <a class="nav-link" href="/">
+                            <span>🏠</span>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/students/' %}active{% endif %}">
+                        <a class="nav-link" href="/students/">
+                            <span>👥</span>
+                            Students
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/students/add/' %}active{% endif %}">
+                        <a class="nav-link" href="/students/add/">
+                            <span>➕</span>
+                            Add Students
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
 
-    <div class="container">{% block content %} {% endblock %}</div>
+    <div class="container">
+        {% block content %}
+        <!-- Default content if no content block is provided -->
+        <div class="page-header">
+            <h1 class="page-title">Welcome to Student Alumni Management</h1>
+            <p class="page-subtitle">Manage and track your student alumni data efficiently</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <p>This is the base template. Please extend this template and add your content in the content block.</p>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const toggler = document.querySelector('.navbar-toggler');
-        const menu = document.getElementById('navbarNav');
+        // Enhanced Navigation Toggle with Animation
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggler = document.querySelector('.navbar-toggler');
+            const menu = document.getElementById('navbarNav');
+            
+            if (toggler && menu) {
+                toggler.addEventListener('click', function () {
+                    // Toggle menu visibility
+                    menu.classList.toggle('show');
+                    
+                    // Toggle hamburger animation
+                    toggler.classList.toggle('active');
+                    
+                    // Update aria-expanded for accessibility
+                    const isExpanded = menu.classList.contains('show');
+                    toggler.setAttribute('aria-expanded', isExpanded);
+                });
 
-        toggler.addEventListener('click', function () {
-          menu.classList.toggle('show');
+                // Close menu when clicking outside
+                document.addEventListener('click', function (event) {
+                    const isClickInsideNav = toggler.contains(event.target) || menu.contains(event.target);
+                    
+                    if (!isClickInsideNav && menu.classList.contains('show')) {
+                        menu.classList.remove('show');
+                        toggler.classList.remove('active');
+                        toggler.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                // Close menu when pressing Escape key
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && menu.classList.contains('show')) {
+                        menu.classList.remove('show');
+                        toggler.classList.remove('active');
+                        toggler.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                // Close menu when window is resized to desktop size
+                window.addEventListener('resize', function () {
+                    if (window.innerWidth > 768 && menu.classList.contains('show')) {
+                        menu.classList.remove('show');
+                        toggler.classList.remove('active');
+                        toggler.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
         });
-      });
-    </script>
 
-  </body>
+        // Smooth scrolling for anchor links
+        document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('a[href^="#"]');
+            
+            links.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    
+                    if (href === '#') return;
+                    
+                    const target = document.querySelector(href);
+                    
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+
+        // Enhanced form handling
+        function handleFormSubmit(form, options = {}) {
+            const {
+                showLoading = true,
+                loadingText = 'Processing...',
+                successCallback = null,
+                errorCallback = null
+            } = options;
+
+            form.addEventListener('submit', function (e) {
+                if (showLoading) {
+                    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        const originalText = submitBtn.textContent || submitBtn.value;
+                        submitBtn.textContent = loadingText;
+                        submitBtn.innerHTML = `<span class="spinner"></span> ${loadingText}`;
+                        
+                        // Reset button after 5 seconds as fallback
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        }, 5000);
+                    }
+                }
+            });
+        }
+
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+
+        // Add loading state to buttons with data-loading attribute
+        document.addEventListener('DOMContentLoaded', function () {
+            const loadingButtons = document.querySelectorAll('[data-loading]');
+            
+            loadingButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const loadingText = this.getAttribute('data-loading') || 'Loading...';
+                    const originalText = this.textContent;
+                    
+                    this.disabled = true;
+                    this.innerHTML = `<span class="spinner"></span> ${loadingText}`;
+                    
+                    // Reset after 3 seconds as fallback
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.textContent = originalText;
+                    }, 3000);
+                });
+            });
+        });
+
+        // Utility functions for common operations
+        window.StudentAlumniApp = {
+            // Show toast notification
+            showToast: function(message, type = 'info', duration = 3000) {
+                const toast = document.createElement('div');
+                toast.className = `alert alert-${type}`;
+                toast.style.position = 'fixed';
+                toast.style.top = '20px';
+                toast.style.right = '20px';
+                toast.style.zIndex = '9999';
+                toast.style.minWidth = '300px';
+                toast.textContent = message;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            },
+
+            // Confirm dialog
+            confirm: function(message, callback) {
+                if (window.confirm(message)) {
+                    callback();
+                }
+            },
+
+            // Format date
+            formatDate: function(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            },
+
+            // Debounce function for search inputs
+            debounce: function(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+        };
+    </script>
+</body>
 </html>

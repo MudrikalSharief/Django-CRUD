@@ -1,10 +1,844 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 
 {% block title %}
-    My CRUD Homepage
+    Welcome - Student Alumni Management System
 {% endblock %}
 
 {% block content %}
-    <h1>Welcome to My CRUD Homepage</h1>
-    <p>This is a simple CRUD application built with Django.</p>
+<style>
+    /* Homepage-specific styles */
+    
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        border-radius: var(--border-radius-lg);
+        padding: 4rem 2rem;
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        pointer-events: none;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+        font-weight: 400;
+    }
+
+    .hero-cta {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: var(--white);
+        color: var(--primary-color);
+        text-decoration: none;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1rem;
+        transition: var(--transition);
+        box-shadow: var(--shadow);
+    }
+
+    .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        text-decoration: none;
+        color: var(--primary-dark);
+    }
+
+    .cta-button.secondary {
+        background: transparent;
+        color: var(--white);
+        border: 2px solid var(--white);
+    }
+
+    .cta-button.secondary:hover {
+        background: var(--white);
+        color: var(--primary-color);
+    }
+
+    /* Features Grid */
+    .features-section {
+        margin-bottom: 3rem;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+    }
+
+    .section-description {
+        font-size: 1.125rem;
+        color: var(--gray-600);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .feature-card {
+        background: var(--white);
+        border-radius: var(--border-radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        text-align: center;
+        border: 1px solid var(--gray-200);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-color);
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--primary-dark);
+        box-shadow: var(--shadow);
+    }
+
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+    }
+
+    .feature-description {
+        color: var(--gray-600);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .feature-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .feature-link:hover {
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(4px);
+    }
+
+    /* Stats Section */
+    .stats-section {
+        background: var(--gray-50);
+        border-radius: var(--border-radius-lg);
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .stat-item {
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        display: block;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--gray-600);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.875rem;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        background: var(--white);
+        border-radius: var(--border-radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 3rem;
+    }
+
+    .quick-actions-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .quick-actions-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .action-card {
+        background: var(--gray-50);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        text-align: center;
+        transition: var(--transition);
+        border: 2px solid transparent;
+    }
+
+    .action-card:hover {
+        background: var(--white);
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .action-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .action-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .action-description {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary-color);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: var(--transition);
+    }
+
+    .action-button:hover {
+        background: var(--primary-dark);
+        text-decoration: none;
+        color: var(--white);
+        transform: translateY(-1px);
+    }
+
+    /* Recent Activity */
+    .recent-activity {
+        background: var(--white);
+        border-radius: var(--border-radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow);
+    }
+
+    .activity-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .activity-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-900);
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-dark);
+        font-size: 1.125rem;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-text {
+        color: var(--gray-700);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        color: var(--gray-500);
+        font-size: 0.75rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 3rem 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+        }
+
+        .hero-cta {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cta-button {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-title {
+            font-size: 1.875rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+        }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease;
+    }
+
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .slide-in-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: all 0.6s ease;
+    }
+
+    .slide-in-left.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .slide-in-right {
+        opacity: 0;
+        transform: translateX(30px);
+        transition: all 0.6s ease;
+    }
+
+    .slide-in-right.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="hero-section fade-in">
+    <div class="hero-content">
+        <h1 class="hero-title">Welcome to Student Alumni Management</h1>
+        <p class="hero-subtitle">
+            Streamline your student data management with our comprehensive CRUD application. 
+            Track alumni progress, manage employment records, and maintain professional connections all in one place.
+        </p>
+        <div class="hero-cta">
+            <a href="/students/" class="cta-button">
+                <span>👥</span>
+                View All Students
+            </a>
+            <a href="/students/add/" class="cta-button secondary">
+                <span>➕</span>
+                Add New Student
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="section-header fade-in">
+        <h2 class="section-title">Powerful Features</h2>
+        <p class="section-description">
+            Everything you need to manage student alumni data efficiently and professionally
+        </p>
+    </div>
+    
+    <div class="features-grid">
+        <div class="feature-card slide-in-left">
+            <div class="feature-icon">👥</div>
+            <h3 class="feature-title">Student Management</h3>
+            <p class="feature-description">
+                Comprehensive student profiles with personal information, academic details, and employment history tracking.
+            </p>
+            <a href="/students/" class="feature-link">
+                Explore Students
+                <span>→</span>
+            </a>
+        </div>
+        
+        <div class="feature-card fade-in">
+            <div class="feature-icon">💼</div>
+            <h3 class="feature-title">Career Tracking</h3>
+            <p class="feature-description">
+                Monitor alumni career progression, employment status, and professional achievements over time.
+            </p>
+            <a href="/students/" class="feature-link">
+                View Careers
+                <span>→</span>
+            </a>
+        </div>
+        
+        <div class="feature-card slide-in-right">
+            <div class="feature-icon">🔗</div>
+            <h3 class="feature-title">LinkedIn Integration</h3>
+            <p class="feature-description">
+                Connect with alumni professional profiles and maintain networking opportunities through LinkedIn integration.
+            </p>
+            <a href="/students/" class="feature-link">
+                View Profiles
+                <span>→</span>
+            </a>
+        </div>
+        
+        <div class="feature-card slide-in-left">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Analytics & Reports</h3>
+            <p class="feature-description">
+                Generate insights on graduation trends, employment rates, and alumni success metrics.
+            </p>
+            <a href="/students/" class="feature-link">
+                View Analytics
+                <span>→</span>
+            </a>
+        </div>
+        
+        <div class="feature-card fade-in">
+            <div class="feature-icon">🎓</div>
+            <h3 class="feature-title">Academic Records</h3>
+            <p class="feature-description">
+                Maintain detailed academic information including courses, graduation years, and achievements.
+            </p>
+            <a href="/students/add/" class="feature-link">
+                Add Records
+                <span>→</span>
+            </a>
+        </div>
+        
+        <div class="feature-card slide-in-right">
+            <div class="feature-icon">🔄</div>
+            <h3 class="feature-title">Easy Updates</h3>
+            <p class="feature-description">
+                Simple and intuitive interface for updating student information and employment status.
+            </p>
+            <a href="/students/" class="feature-link">
+                Manage Data
+                <span>→</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section fade-in">
+    <h2 class="section-title">Platform Overview</h2>
+    <p class="section-description">Track your alumni management success</p>
+    
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number" id="totalStudents">0</span>
+            <span class="stat-label">Total Students</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="employedStudents">0</span>
+            <span class="stat-label">Employed Alumni</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="linkedinProfiles">0</span>
+            <span class="stat-label">LinkedIn Profiles</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="recentGrads">0</span>
+            <span class="stat-label">Recent Graduates</span>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section class="quick-actions fade-in">
+    <div class="quick-actions-header">
+        <h2 class="quick-actions-title">Quick Actions</h2>
+        <p class="section-description">Get started with common tasks</p>
+    </div>
+    
+    <div class="actions-grid">
+        <div class="action-card">
+            <span class="action-icon">👤</span>
+            <h3 class="action-title">Add New Student</h3>
+            <p class="action-description">Register a new student with their academic and personal information</p>
+            <a href="/students/add/" class="action-button">
+                <span>➕</span>
+                Add Student
+            </a>
+        </div>
+        
+        <div class="action-card">
+            <span class="action-icon">📋</span>
+            <h3 class="action-title">View All Students</h3>
+            <p class="action-description">Browse, search, and manage your complete student directory</p>
+            <a href="/students/" class="action-button">
+                <span>👥</span>
+                View Directory
+            </a>
+        </div>
+        
+        <div class="action-card">
+            <span class="action-icon">📈</span>
+            <h3 class="action-title">Generate Reports</h3>
+            <p class="action-description">Create detailed reports on student progress and employment statistics</p>
+            <a href="/students/" class="action-button">
+                <span>📊</span>
+                View Reports
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Activity -->
+<section class="recent-activity fade-in">
+    <div class="activity-header">
+        <h2 class="activity-title">Recent Activity</h2>
+        <a href="/students/" class="feature-link">View All</a>
+    </div>
+    
+    <ul class="activity-list">
+        <li class="activity-item">
+            <div class="activity-icon">👤</div>
+            <div class="activity-content">
+                <div class="activity-text">Welcome to the Student Alumni Management System</div>
+                <div class="activity-time">Just now</div>
+            </div>
+        </li>
+        <li class="activity-item">
+            <div class="activity-icon">🎓</div>
+            <div class="activity-content">
+                <div class="activity-text">System ready for student data management</div>
+                <div class="activity-time">Today</div>
+            </div>
+        </li>
+        <li class="activity-item">
+            <div class="activity-icon">💼</div>
+            <div class="activity-content">
+                <div class="activity-text">Career tracking features are now available</div>
+                <div class="activity-time">Today</div>
+            </div>
+        </li>
+    </ul>
+</section>
+
+<script>
+    // Enhanced JavaScript for homepage interactions
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animate statistics counters
+        function animateCounter(element, target, duration = 2000) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            function updateCounter() {
+                start += increment;
+                if (start < target) {
+                    element.textContent = Math.floor(start);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
+            }
+            
+            updateCounter();
+        }
+
+        // Simulate statistics (replace with real data from your backend)
+        const stats = {
+            totalStudents: 150,
+            employedStudents: 128,
+            linkedinProfiles: 95,
+            recentGrads: 42
+        };
+
+        // Animate counters when stats section is visible
+        const statsSection = document.querySelector('.stats-section');
+        const statsObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Animate each counter
+                    Object.keys(stats).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element) {
+                            animateCounter(element, stats[key]);
+                        }
+                    });
+                    
+                    // Disconnect observer after animation
+                    statsObserver.disconnect();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+
+        // Add hover effects to action cards
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-2px) scale(1)';
+            });
+        });
+
+        // Add click tracking for analytics (optional)
+        document.querySelectorAll('.cta-button, .action-button, .feature-link').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const action = this.textContent.trim();
+                console.log(`User clicked: ${action}`);
+                
+                // You can send this data to your analytics service
+                // Example: gtag('event', 'click', { 'event_category': 'homepage', 'event_label': action });
+            });
+        });
+
+        // Show welcome toast
+        setTimeout(() => {
+            if (window.StudentAlumniApp && window.StudentAlumniApp.showToast) {
+                window.StudentAlumniApp.showToast('Welcome to Student Alumni Management System! 🎓', 'info', 4000);
+            }
+        }, 1000);
+
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add keyboard navigation for action cards
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.setAttribute('tabindex', '0');
+            
+            card.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const button = this.querySelector('.action-button');
+                    if (button) {
+                        button.click();
+                    }
+                }
+            });
+        });
+
+        // Add loading states for navigation
+        document.querySelectorAll('.cta-button, .action-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Add loading state
+                this.style.opacity = '0.7';
+                this.style.pointerEvents = 'none';
+                
+                // Reset after navigation (in case of SPA)
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                    this.style.pointerEvents = 'auto';
+                }, 2000);
+            });
+        });
+    });
+
+    // Utility function to fetch real statistics (replace with your API endpoint)
+    async function fetchRealStats() {
+        try {
+            // Replace with your actual API endpoint
+            // const response = await fetch('/api/stats/');
+            // const data = await response.json();
+            // return data;
+            
+            // For now, return mock data
+            return {
+                totalStudents: 150,
+                employedStudents: 128,
+                linkedinProfiles: 95,
+                recentGrads: 42
+            };
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+            return {
+                totalStudents: 0,
+                employedStudents: 0,
+                linkedinProfiles: 0,
+                recentGrads: 0
+            };
+        }
+    }
+</script>
+
 {% endblock %}

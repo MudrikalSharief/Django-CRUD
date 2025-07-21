@@ -1,132 +1,968 @@
 {% extends "base.html" %}
+{% comment %} Modern Student Management Template {% endcomment %}
 
-{% comment %} This is the todo list template {% endcomment %}
-{% comment %} {{ inside of this is a value/ variable }} {% endcomment %}
-
+{% block title %}Students - Student Alumni Management{% endblock %}
 
 {% block content %}
+<style>
+    /* Page-specific styles that extend base.html */
+    
+    /* Toast Notification */
+    #toast {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius);
+        color: var(--white);
+        font-weight: 500;
+        text-align: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+    }
+
+    #toast.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+
+    #toast.success {
+        background: linear-gradient(135deg, var(--success-color), #059669);
+    }
+
+    #toast.error {
+        background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    }
+
+    /* Modern Table Styles */
+    .students-section {
+        background: var(--white);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-top: 2rem;
+    }
+
+    .section-header {
+        padding: 2rem;
+        border-bottom: 1px solid var(--gray-200);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-subtitle {
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .students-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--white);
+    }
+
+    .students-table th {
+        background: var(--gray-50);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #0d72f9;
+        border-bottom: 2px solid var(--gray-200);
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .students-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+        vertical-align: middle;
+    }
+
+    .students-table tbody tr {
+        transition: var(--transition);
+    }
+
+    .students-table tbody tr:hover {
+        background-color: var(--gray-50);
+        transform: scale(1.001);
+    }
+
+    /* Student Info Styling */
+    .student-name {
+        font-weight: 600;
+        color: var(--gray-900);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .student-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .course-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .year-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .linkedin-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .linkedin-link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .employment-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .job-title {
+        font-weight: 600;
+        color: var(--gray-900);
+    }
+
+    .company-name {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+
+    .employment-period {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .na-text {
+        color: var(--gray-400);
+        font-style: italic;
+        font-size: 0.875rem;
+    }
+
+    /* Action Buttons */
+    .action-holder {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .update-button {
+        background: var(--primary-color);
+        color: var(--white);
+    }
+
+    .update-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .delete-button {
+        background: var(--danger-color);
+        color: var(--white);
+    }
+
+    .delete-button:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-edit, .modal {
+        background: var(--white);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        max-width: 600px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.9) translateY(-20px);
+        transition: all 0.3s ease;
+    }
+
+    .modal-overlay.show .modal-edit,
+    .modal-overlay.show .modal {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-edit {
+        padding: 2rem;
+    }
+
+    .modal h2 {
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .modal label {
+        font-weight: 600;
+        color: var(--gray-700);
+        font-size: 0.875rem;
+    }
+
+    .modal input {
+        padding: 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: var(--transition);
+        background: var(--white);
+    }
+
+    .modal input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .section-divider {
+        margin: 1.5rem 0 1rem 0;
+        padding-top: 1rem;
+        border-top: 1px solid var(--gray-200);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .modal-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-btn.primary {
+        background: var(--primary-color);
+        color: var(--white);
+    }
+
+    .modal-btn.primary:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .modal-btn.primary:disabled {
+        background: var(--gray-400);
+        cursor: not-allowed;
+    }
+
+    .modal-btn.secondary {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-300);
+    }
+
+    .modal-btn.secondary:hover {
+        background: var(--gray-200);
+    }
+
+    /* Confirm Modal */
+    .modal {
+        padding: 2rem;
+        text-align: center;
+        max-width: 400px;
+    }
+
+    .confirm-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        background: #fee2e2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--danger-color);
+        font-size: 1.5rem;
+    }
+
+    #confirmMessage {
+        font-size: 1.125rem;
+        color: var(--gray-700);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .confirm-buttons {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    .confirm-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        min-width: 100px;
+    }
+
+    .confirm-yes {
+        background: var(--danger-color);
+        color: var(--white);
+    }
+
+    .confirm-yes:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+    }
+
+    .confirm-no {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-300);
+    }
+
+    .confirm-no:hover {
+        background: var(--gray-200);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--gray-500);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .section-header {
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .students-table th,
+        .students-table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .action-holder {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .action-btn {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .modal-edit {
+            padding: 1.5rem;
+        }
+
+        .modal-form {
+            grid-template-columns: 1fr;
+        }
+
+        #toast {
+            right: 1rem;
+            left: 1rem;
+            min-width: auto;
+        }
+    }
+
+    /* Loading States */
+    .loading-row {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .btn-loading {
+        position: relative;
+        color: transparent !important;
+    }
+
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    /* Icons */
+    .icon {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+    }
+    
+    /* Search Form Styles */
+    .search-container {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .search-form {
+        width: 100%;
+    }
+    
+    .search-input-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .search-form input[type="text"] {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--white);
+        font-size: 0.95rem;
+    }
+    
+    .search-form input[type="text"]::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .search-form input[type="text"]:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .search-btn {
+        padding: 0.75rem 1.25rem;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: var(--border-radius);
+        color: var(--white);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .search-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .search-results-info {
+        margin-top: 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.875rem;
+    }
+    
+    .clear-search {
+        margin-left: 0.5rem;
+        color: var(--white);
+        text-decoration: underline;
+    }
+    
+    /* Pagination Styles */
+    .pagination-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem;
+        border-top: 1px solid var(--gray-200);
+        gap: 1rem;
+    }
+    
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .pagination-btn {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--border-radius);
+        background: var(--white);
+        border: 1px solid var(--gray-300);
+        color: var(--gray-700);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        text-decoration: none;
+    }
+    
+    .pagination-btn:hover:not(.disabled) {
+        background: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-dark);
+    }
+    
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .pagination-info {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--border-radius);
+        background: var(--gray-50);
+        color: var(--gray-700);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .pagination-summary {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+    }
+    
+    @media (max-width: 768px) {
+        .search-input-group {
+            flex-direction: column;
+        }
+        
+        .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem 0.25rem;
+        }
+    }
+
+    input, select{
+        padding: 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: 10px;
+        background: var(--white);
+        color: var(--gray-900);
+        font-size: 0.875rem;
+    }
+    
+    select {
+        appearance: auto;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 16px;
+        padding-right: 2.5rem;
+    }
+</style>
+
+<!-- Toast Notification -->
 <div id="toast"></div>
 
-
-<div class="modal-overlay" id="editModal" style="display: none;">
-  <div class="modal-edit">
-    <h2 style="margin-left: 1.5rem;">Edit Student</h2>
-    <form id="updateForm" method="POST">
-      {% csrf_token %}
-      <input type="hidden" id="studentId" name="studentId">
-
-      <label>Name:</label>
-      <input type="text" id="name" name="name">
-
-      <label>Course:</label>
-      <input type="text" id="course" name="course">
-
-      <label>Year Graduated:</label>
-      <input type="number" id="year_graduated" name="year_graduated">
-
-      <label>LinkedIn Profile:</label>
-      <input type="text" id="linkedin_profile" name="linkedin_profile">
-
-      <label>Job Title:</label>
-      <input type="text" id="job_title" name="job_title">
-
-      <label>Company:</label>
-      <input type="text" id="company" name="company">
-
-      <label>Start Employment Date:</label>
-      <input type="date" id="start_employment_date" name="start_employment_date">
-
-      <label>End Employment Date:</label>
-      <input type="date" id="end_employment_date" name="end_employment_date">
-    </form>
-
-    <div class="modal-buttons">
-      <button type="submit" form="updateForm">Save</button>
-      <button type="button" onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-
-<div id="confirmModal" class="modal-overlay" style="display: none;">
-  <div class="modal">
-    <p id="confirmMessage">Are you sure?</p>
-    <div class="modal-buttons">
-      <button id="confirmYes">Yes</button>
-      <button id="confirmNo">No</button>
-    </div>
-  </div>
-</div>
-
-<h1> Students </h1>
-
-<table>
-    <tr>
-        <th> Name </th>
-        <th> Course </th>
-        <th> Year Graduated </th>
-        <th> Linkedin Url </th>
-        <th> Job Title </th>
-        <th> Company </th>
-        <th> Employment Date </th>
-        <th> Action </th>
-    </tr>
-{% for student in students %}
-    <tr>
-        <td> {{ student.name }} </td>
-        <td> {{ student.course }} </td>
-        <td> {{ student.year_graduated}} </td>
-        <td> 
-            {% if student.linkedin_profile %}
-                {{ student.linkedin_profile}}
-            {% else %}
-                N/A
-            {% endif %}
-                
-        </td>
-        <td> 
-                {% if student.job_title %}
-                {{ student.job_title}} 
-                {% else %}
-                N/A
-                {% endif %}
-
-        </td>
-        <td> 
-                {% if student.company%}
-                {{ student.company}} 
-                {% else %}
-                N/A
-                {% endif %} 
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-edit">
+        <h2>
+            <span>✏️</span>
+            Edit Student Information
+        </h2>
+        <form id="updateForm" method="POST">
+            {% csrf_token %}
+            <input type="hidden" id="studentId" name="studentId">
             
-        </td>
-        <td> {% if student.start_employment_date%}
-                {{ student.start_employment_date|date:"F Y" }} -
-                {% if student.end_employment_date %}
-                    {{ student.end_employment_date|date:"F Y" }}
-                {% else %}
-                    Present
-                {% endif %}
-                {% else %}
-                N/A
-                {% endif %}
-        </td>
-        <td>
-            <div class = "action_holder">    
-                <button class="update-button" data-student-id="{{ student.id }}">Update</button>
-                <button class ="delete-button" data-student-id="{{ student.id }}" >Delete</button>
+            <div class="modal-form">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="course">Course *</label>
+                    <input type="text" id="course" name="course" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="year_graduated">Year Graduated *</label>
+                    <select id="year_graduated" name="year_graduated" required>
+                        <option value="">Select Year</option>
+                        <!-- Years will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="linkedin_profile">LinkedIn Profile</label>
+                    <input type="url" id="linkedin_profile" name="linkedin_profile" placeholder="https://linkedin.com/in/username">
+                </div>
             </div>
-        </td>
+            
+            <div class="section-divider">Employment Information</div>
+            
+            <div class="modal-form">
+                <div class="form-group">
+                    <label for="job_title">Job Title</label>
+                    <input type="text" id="job_title" name="job_title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="company">Company</label>
+                    <input type="text" id="company" name="company">
+                </div>
+                
+                <div class="form-group">
+                    <label for="start_employment_date">Start Date</label>
+                    <input type="date" id="start_employment_date" name="start_employment_date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="end_employment_date">End Date</label>
+                    <input type="date" id="end_employment_date" name="end_employment_date">
+                </div>
+            </div>
+        </form>
         
-    </tr>                
-{% endfor %}
+        <div class="modal-buttons">
+            <button type="button" class="modal-btn secondary" onclick="closeModal()">
+                <span>❌</span>
+                Cancel
+            </button>
+            <button type="submit" form="updateForm" class="modal-btn primary" id="saveBtn">
+                <span>💾</span>
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>
 
-</table>
+<!-- Confirm Delete Modal -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal">
+        <div class="confirm-icon">⚠️</div>
+        <p id="confirmMessage">Are you sure you want to delete this student?</p>
+        <div class="confirm-buttons">
+            <button id="confirmYes" class="confirm-btn confirm-yes">Delete</button>
+            <button id="confirmNo" class="confirm-btn confirm-no">Cancel</button>
+        </div>
+    </div>
+</div>
 
+<!-- Main Content -->
+<div class="students-section">
+    <div class="section-header">
+        <h1 class="section-title">
+            <span>👥</span>
+            Student Directory
+        </h1>
+        <p class="section-subtitle">Manage and track student alumni information</p>
+        
+        <!-- Search Form -->
+        <div class="search-container">
+            <form action="" method="GET" class="search-form">
+                <div class="search-input-group">
+                    <input 
+                        type="text" 
+                        name="search" 
+                        id="search" 
+                        placeholder="Search by name, course, company or job title..."
+                        value="{{ search_query }}"
+                    >
+                    <button type="submit" class="search-btn">
+                        <span>🔍</span>
+                        Search
+                    </button>
+                </div>
+                {% if search_query %}
+                    <div class="search-results-info">
+                        <p>
+                            Found {{ total_students }} result{{ total_students|pluralize }} for "{{ search_query }}"
+                            <a href="{% url 'showstudents' %}" class="clear-search">Clear search</a>
+                        </p>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    
+    {% if students %}
+    <div class="table-container">
+        <table class="students-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Graduation</th>
+                    <th>LinkedIn</th>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Period</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr data-student-id="{{ student.id }}">
+                    <td>
+                        <div class="student-name">
+                            {{ student.name }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="course-badge">{{ student.course }}</span>
+                    </td>
+                    <td>
+                        <span class="year-badge">Class of {{ student.year_graduated }}</span>
+                    </td>
+                    <td>
+                        {% if student.linkedin_profile %}
+                            <a href="{{ student.linkedin_profile }}" target="_blank" class="linkedin-link">
+                                <span>🔗</span>
+                                View Profile
+                            </a>
+                        {% else %}
+                            <span class="na-text">Not provided</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if student.job_title %}
+                            <div class="employment-info">
+                                <div class="job-title">{{ student.job_title }}</div>
+                            </div>
+                        {% else %}
+                            <span class="na-text">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if student.company %}
+                            <div class="company-name">{{ student.company }}</div>
+                        {% else %}
+                            <span class="na-text">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if student.start_employment_date %}
+                            <div class="employment-period">
+                                <span>📅</span>
+                                {{ student.start_employment_date|date:"M Y" }} - 
+                                {% if student.end_employment_date %}
+                                    {{ student.end_employment_date|date:"M Y" }}
+                                {% else %}
+                                    Present
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <span class="na-text">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-holder">
+                            <button class="action-btn update-button" data-student-id="{{ student.id }}">
+                                <span>✏️</span>
+                                Edit
+                            </button>
+                            <button class="action-btn delete-button" data-student-id="{{ student.id }}">
+                                <span>🗑️</span>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        {% if students.paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            <div class="pagination">
+                {% if students.has_previous %}
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page=1" class="pagination-btn first">
+                        <span>«</span> First
+                    </a>
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ students.previous_page_number }}" class="pagination-btn prev">
+                        <span>‹</span> Previous
+                    </a>
+                {% else %}
+                    <span class="pagination-btn disabled first"><span>«</span> First</span>
+                    <span class="pagination-btn disabled prev"><span>‹</span> Previous</span>
+                {% endif %}
+                
+                <span class="pagination-info">
+                    Page {{ students.number }} of {{ students.paginator.num_pages }}
+                </span>
+                
+                {% if students.has_next %}
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ students.next_page_number }}" class="pagination-btn next">
+                        Next <span>›</span>
+                    </a>
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ students.paginator.num_pages }}" class="pagination-btn last">
+                        Last <span>»</span>
+                    </a>
+                {% else %}
+                    <span class="pagination-btn disabled next">Next <span>›</span></span>
+                    <span class="pagination-btn disabled last">Last <span>»</span></span>
+                {% endif %}
+            </div>
+            
+            <div class="pagination-summary">
+                Showing {{ students.start_index }} to {{ students.end_index }} of {{ total_students }} students
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <h3>No Students Found</h3>
+        <p>Start by adding some students to your directory.</p>
+        <a href="/students/add/" class="btn btn-primary" style="margin-top: 1rem;">
+            <span>➕</span>
+            Add First Student
+        </a>
+    </div>
+    {% endif %}
+</div>
 
 <script>
-
-    // CSRF Token setup for AJAX
+    // Enhanced JavaScript with better error handling and UX
+    
+    // CSRF Token setup
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -142,172 +978,354 @@
         return cookieValue;
     }
 
+    const csrftoken = getCookie('csrftoken');
+
+    // Enhanced Toast Notifications
+    function showToast(message, isError = false, duration = 4000) {
+        const toast = document.getElementById("toast");
+        
+        // Remove existing classes
+        toast.classList.remove('success', 'error', 'show');
+        
+        // Set message and style
+        toast.textContent = message;
+        toast.classList.add(isError ? 'error' : 'success');
+        
+        // Show toast
+        setTimeout(() => toast.classList.add('show'), 100);
+        
+        // Hide toast
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, duration);
+    }
+
+    // Enhanced Modal Management
     function openModal() {
-        document.getElementById("editModal").style.display = "flex";
+        const modal = document.getElementById("editModal");
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        // Focus first input
+        setTimeout(() => {
+            const firstInput = modal.querySelector('input[type="text"]');
+            if (firstInput) firstInput.focus();
+        }, 300);
     }
 
     function closeModal() {
-        document.getElementById("editModal").style.display = "none";
+        const modal = document.getElementById("editModal");
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+        
+        // Reset form
+        document.getElementById('updateForm').reset();
+        
+        // Reset save button
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = false;
+        saveBtn.classList.remove('btn-loading');
+        saveBtn.innerHTML = '<span>💾</span> Save Changes';
     }
 
-    // Optional: close modal when clicking outside of it
-    window.addEventListener("click", function (e) {
-        const modal = document.getElementById("editModal");
-        if (e.target === modal) {
-        closeModal();
+    // Close modal when clicking outside
+    document.getElementById("editModal").addEventListener("click", function (e) {
+        if (e.target === this) {
+            closeModal();
         }
     });
 
-    function showToast(message,error = false) {
-        const toast = document.getElementById("toast");
-        if (error == false){
-            toast.style.backgroundColor = "#4BB543";
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const editModal = document.getElementById("editModal");
+            const confirmModal = document.getElementById("confirmModal");
+            
+            if (editModal.classList.contains('show')) {
+                closeModal();
+            }
+            if (confirmModal.classList.contains('show')) {
+                closeConfirmModal();
+            }
         }
-        else{
-            toast.style.backgroundColor = "#b54343";
-        }
+    });
 
-        toast.textContent = message;
-        toast.style.visibility = "visible";
-        toast.style.opacity = "1";
-        
-        setTimeout(() => {
-            toast.style.opacity = "0";
-            toast.style.visibility = "hidden";
-        }, 2000); // Hide after 3 seconds
-    }
-    
+    // Enhanced Confirm Modal
     function showConfirmModal(message) {
         return new Promise((resolve) => {
             const modal = document.getElementById('confirmModal');
             const confirmMessage = document.getElementById('confirmMessage');
             const yesBtn = document.getElementById('confirmYes');
             const noBtn = document.getElementById('confirmNo');
-
+            
             confirmMessage.textContent = message;
-            modal.style.display = 'flex';
-
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
             function close(result) {
-            modal.style.display = 'none';
-            yesBtn.removeEventListener('click', onYes);
-            noBtn.removeEventListener('click', onNo);
-            resolve(result);
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+                yesBtn.removeEventListener('click', onYes);
+                noBtn.removeEventListener('click', onNo);
+                resolve(result);
             }
-
+            
             function onYes() { close(true); }
             function onNo() { close(false); }
-
+            
             yesBtn.addEventListener('click', onYes);
             noBtn.addEventListener('click', onNo);
         });
     }
 
+    function closeConfirmModal() {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
 
-    const csrftoken = getCookie('csrftoken');
-
-    // Handle Delete Click
+    // Enhanced Delete Functionality
     document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', async function () {
             const studentId = this.getAttribute('data-student-id');
             const row = this.closest('tr');
-
-            showConfirmModal('Are you sure you want to delete this student?')
-                .then(confirmed => {
-                    if (confirmed) {
-                        fetch(`/student/delete/${studentId}/`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': csrftoken,
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                row.remove();  // Remove the row from the table
-                                showToast("Student deleted successfully!",false);
-                            } else {
-                                showToast('Error: ' + (data.error || 'Could not delete student.', true));
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showToast("Something went wrong.",true);
-                        });
-                         }
-                 });
-        });
-    });
-
-    document.querySelectorAll('.update-button').forEach(button => {
-        button.addEventListener('click', function () {
-            const studentId = this.getAttribute('data-student-id');
-            fetch(`/student/get/${studentId}/`)
-                .then(response => response.json())
-                .then(data => {
+            const studentName = row.querySelector('.student-name').textContent.trim();
+            
+            const confirmed = await showConfirmModal(
+                `Are you sure you want to delete ${studentName}? This action cannot be undone.`
+            );
+            
+            if (confirmed) {
+                // Add loading state
+                this.classList.add('btn-loading');
+                this.disabled = true;
+                row.classList.add('loading-row');
+                
+                try {
+                    const response = await fetch(`/student/delete/${studentId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
                     if (data.success) {
-                        const s = data.student;
-                        document.getElementById('studentId').value = s.id;
-                        document.getElementById('name').value = s.name || '';
-                        document.getElementById('course').value = s.course || '';
-                        document.getElementById('year_graduated').value = s.year_graduated || '';
-                        document.getElementById('linkedin_profile').value = s.linkedin_profile || '';
-                        document.getElementById('job_title').value = s.job_title || '';
-                        document.getElementById('company').value = s.company || '';
-                        document.getElementById('start_employment_date').value = s.start_employment_date || '';
-                        document.getElementById('end_employment_date').value = s.end_employment_date || '';
-                        openModal();
+                        // Animate row removal
+                        row.style.transform = 'translateX(-100%)';
+                        row.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            row.remove();
+                            showToast(`${studentName} has been deleted successfully!`, false);
+                            
+                            // Check if table is empty
+                            const remainingRows = document.querySelectorAll('.students-table tbody tr');
+                            if (remainingRows.length === 0) {
+                                location.reload(); // Reload to show empty state
+                            }
+                        }, 300);
                     } else {
-                        showToast("Could not fetch student data.", true);
+                        throw new Error(data.error || 'Could not delete student.');
                     }
-                });
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    showToast(error.message || "Something went wrong while deleting.", true);
+                    
+                    // Remove loading state
+                    this.classList.remove('btn-loading');
+                    this.disabled = false;
+                    row.classList.remove('loading-row');
+                }
+            }
         });
     });
 
-   document.getElementById('updateForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const studentId = document.getElementById('studentId').value;
-        const data = {
-            name: document.getElementById('name').value,
-            course: document.getElementById('course').value,
-            year_graduated: document.getElementById('year_graduated').value,
-            linkedin_profile: document.getElementById('linkedin_profile').value,
-            job_title: document.getElementById('job_title').value,
-            company: document.getElementById('company').value,
-            start_employment_date: document.getElementById('start_employment_date').value,
-            end_employment_date: document.getElementById('end_employment_date').value,
-        };
-
-        fetch(`/student/update/${studentId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast("Student updated successfully!");
-                closeModal();
-                location.reload();
-            } else if (data.errors) {
-                // Show validation errors
-                let errorMsg = "";
-                for (const [field, messages] of Object.entries(data.errors)) {
-                    errorMsg += `${field}: ${messages.join(", ")}\n`;
+    // Enhanced Update Functionality
+    document.querySelectorAll('.update-button').forEach(button => {
+        button.addEventListener('click', async function () {
+            const studentId = this.getAttribute('data-student-id');
+            
+            // Add loading state
+            this.classList.add('btn-loading');
+            this.disabled = true;
+            
+            try {
+                const response = await fetch(`/student/get/${studentId}/`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const s = data.student;
+                    
+                    // Populate form with better error handling
+                    document.getElementById('studentId').value = s.id;
+                    document.getElementById('name').value = s.name || '';
+                    document.getElementById('course').value = s.course || '';
+                    
+                    // Handle the year dropdown
+                    const yearSelect = document.getElementById('year_graduated');
+                    if (yearSelect && s.year_graduated) {
+                        // If the year doesn't exist in dropdown, add it
+                        let yearExists = false;
+                        for (let i = 0; i < yearSelect.options.length; i++) {
+                            if (yearSelect.options[i].value == s.year_graduated) {
+                                yearExists = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!yearExists) {
+                            const option = document.createElement('option');
+                            option.value = s.year_graduated;
+                            option.textContent = s.year_graduated;
+                            yearSelect.appendChild(option);
+                        }
+                        
+                        yearSelect.value = s.year_graduated;
+                    }
+                    
+                    document.getElementById('linkedin_profile').value = s.linkedin_profile || '';
+                    document.getElementById('job_title').value = s.job_title || '';
+                    document.getElementById('company').value = s.company || '';
+                    document.getElementById('start_employment_date').value = s.start_employment_date || '';
+                    document.getElementById('end_employment_date').value = s.end_employment_date || '';
+                    
+                    openModal();
+                } else {
+                    throw new Error("Could not fetch student data.");
                 }
-                showToast(errorMsg, true);
-            } else {
-                showToast("Update failed.", true);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showToast("Could not load student data. Please try again.", true);
+            } finally {
+                // Remove loading state
+                this.classList.remove('btn-loading');
+                this.disabled = false;
             }
-        })
-        .catch(error => {
-            showToast("Something went wrong.", true);
         });
-    }); 
+    });
 
+    // Enhanced Form Submission
+    document.getElementById('updateForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const saveBtn = document.getElementById('saveBtn');
+        const studentId = document.getElementById('studentId').value;
+        
+        // Validate required fields
+        const name = document.getElementById('name').value.trim();
+        const course = document.getElementById('course').value.trim();
+        const year = document.getElementById('year_graduated').value;
+        
+        if (!name || !course || !year) {
+            showToast("Please fill in all required fields.", true);
+            return;
+        }
+        if( year < 2000 || year > new Date().getFullYear()) {
+            showToast("Please enter a valid graduation year.", true);
+            return;
+        }
+        // Add loading state
+        saveBtn.disabled = true;
+        saveBtn.classList.add('btn-loading');
+        saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+        
+        const formData = {
+            name: name,
+            course: course,
+            year_graduated: year,
+            linkedin_profile: document.getElementById('linkedin_profile').value.trim() || null,
+            job_title: document.getElementById('job_title').value.trim() || null,
+            company: document.getElementById('company').value.trim() || null,
+            start_employment_date: document.getElementById('start_employment_date').value || null,
+            end_employment_date: document.getElementById('end_employment_date').value || null,
+        };
+        
+        try {
+            const response = await fetch(`/student/update/${studentId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showToast("Student information updated successfully!", false);
+                closeModal();
+                
+                // Refresh the page after a short delay
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else if (data.errors) {
+                // Handle validation errors
+                let errorMsg = "Please fix the following errors:\n";
+                for (const [field, messages] of Object.entries(data.errors)) {
+                    errorMsg += `• ${field}: ${messages.join(", ")}\n`;
+                }
+                showToast(errorMsg, true, 6000);
+            } else {
+                throw new Error(data.error || "Update failed.");
+            }
+        } catch (error) {
+            console.error('Update error:', error);
+            showToast(error.message || "Something went wrong. Please try again.", true);
+        } finally {
+            // Reset button state
+            saveBtn.disabled = false;
+            saveBtn.classList.remove('btn-loading');
+            saveBtn.innerHTML = '<span>💾</span> Save Changes';
+        }
+    });
+
+    // Populate year dropdown with values
+    function populateYearDropdown() {
+        const yearSelect = document.getElementById('year_graduated');
+        if (!yearSelect) return;
+        
+        const currentYear = new Date().getFullYear();
+        const startYear = 2000; // You can change this to any starting year you prefer
+        
+        // Create and add options
+        for (let year = currentYear; year >= startYear; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Populate the year dropdown
+        populateYearDropdown();
+        
+        // Add smooth animations to table rows
+        const rows = document.querySelectorAll('.students-table tbody tr');
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                row.style.transition = 'all 0.3s ease';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
+        
+        // Show welcome message if there are students
+        if (rows.length > 0) {
+            setTimeout(() => {
+                showToast(`Welcome! Managing ${rows.length} student${rows.length !== 1 ? 's' : ''}.`, false, 3000);
+            }, 1000);
+        }
+    });
 </script>
 
 {% endblock %}

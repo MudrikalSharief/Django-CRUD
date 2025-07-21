@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
+from django.db.models import Q
 from . models import student #import the student model from models.py in the current directory
 from . forms import AddStudentList #import the AddStudentList form from forms.py in the current directory
 import json
@@ -15,8 +16,38 @@ def index(request):
 
 
 def showstudents(request):
-    list = student.objects.all()  # Get all TodoItem objects from the database
-    return render(request, "students_list.html", {"students" : list}) # Render the todo_list.html template with the list of TodoItem objects
+    # Get search query from URL
+    query = request.GET.get('search', '')
+    
+    # Start with all students
+    student_list = student.objects.all()
+    
+    # Filter by search query if it exists
+    if query:
+        student_list = student_list.filter(
+            # Search in multiple fields
+            Q(name__icontains=query) |
+            Q(course__icontains=query) |
+            Q(company__icontains=query) |
+            Q(job_title__icontains=query)
+        )
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(student_list, 10)  # Show 10 students per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    # Add pagination info
+    context = {
+        "students": page_obj,
+        "search_query": query,
+        "total_students": student_list.count(),
+        "paginator": paginator
+    }
+    
+    return render(request, "students_list.html", context)
+
 def addStudent(request):
     if request.method == "POST":
         form = AddStudentList(request.POST)
